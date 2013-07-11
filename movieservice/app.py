@@ -7,7 +7,7 @@ import urllib
 
 
 # configuration
-DATABASE = '/tmp/flaskr.db'
+DATABASE = 'flaskr.db'
 DEBUG = True
 SECRET_KEY = 'development key'
 USERNAME = 'admin'
@@ -76,10 +76,11 @@ def get_film(film):
     return match
 
 
-@app.route("/rate/<film>", methods=['POST', 'GET'])
-def rate(film):
+@app.route("/rate", methods=['POST', 'GET'])
+def rate():
     """ user can rate. the film """
     message = None
+    film = urllib.unquote(request.args.get('film'))
     if request.method == 'POST':
         user = request.form.get('user', 'Anonymouse')
         try:
@@ -100,11 +101,11 @@ def get_average_rating(film):
     return running_total / len(ratings)
 
 
-@app.route("/ratings/<film>")
-def ratings(film):
+@app.route("/ratings")
+def ratings():
     """ Show all user ratings for a film. """
     ratings_list = []
-    for rating in get_ratings(urllib.unquote(film)):
+    for rating in get_ratings(urllib.unquote(request.args.get('film'))):
         info = {
             'title': rating[2],
             'user': rating[1],
@@ -114,20 +115,25 @@ def ratings(film):
     return json.dumps(ratings_list)
 
 
-@app.route("/info/<film>")
-def one(film):
+@app.route("/info")
+#todo: make film a parameter
+def one():
     """ show info about a given film if we have info"""
     response = "Not found"
     # TODO: add average rating
-    film_name = urllib.unquote(film)
+    film_name = urllib.unquote(request.args.get('film'))
     if film_is_valid(film_name):
         info_dict = get_film(film_name)
         info_dict['average_rating'] = get_average_rating(film_name)
         return json.dumps(info_dict)
     return response
 
+@app.route("/")
+def home():
+    message = ""
+    return render_template('index.html', message=message)
 
-@app.route("/all")
+@app.route("/movies")
 def list_all():
     """ Return response listing all films
     """

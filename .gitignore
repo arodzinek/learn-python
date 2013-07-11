@@ -1,7 +1,7 @@
 #################
 ## Eclipse
 #################
-
+FLASK/
 *.pydevproject
 .project
 .metadata
